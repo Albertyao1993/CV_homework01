@@ -1,4 +1,7 @@
 import numpy as np
+import matplotlib.pyplot as plt 
+# import PIL
+# from PIL import Image
 
 
 def display_image(img):
@@ -7,11 +10,10 @@ def display_image(img):
     Args:
         Image as numpy array (H,W,3)
     """
-
-    #
-    # You code here
-    #
-
+    plt.imshow(img)
+    plt.show()
+ 
+ 
 
 def save_as_npy(path, img):
     """ Save the image array as a .npy file:
@@ -19,10 +21,7 @@ def save_as_npy(path, img):
     Args:
         Image as numpy array (H,W,3)
     """
-
-    #
-    # You code here
-    #
+    return np.save(path,img)
 
 
 def load_npy(path):
@@ -33,10 +32,7 @@ def load_npy(path):
     Returns:
         Image as numpy array (H,W,3)
     """
-
-    #
-    # You code here
-    #
+    return np.load(path)
 
 
 def mirror_horizontal(img):
@@ -48,10 +44,12 @@ def mirror_horizontal(img):
     Returns:
         A horizontally mirrored numpy array (H,W,3).
     """
+    Hor_img = np.copy(img)
+    W = img.shape[1]
 
-    #
-    # You code here
-    #
+    for i in range(W):
+        Hor_img[:,W - i - 1] = img[:,i]
+    return Hor_img
 
 
 def display_images(img1, img2):
@@ -60,7 +58,11 @@ def display_images(img1, img2):
     Args:
         Two image numpy arrays
     """
+    images = [img1, img2]
+    n_images = len(images)
+    fig = plt.figure()
+    for i in range(n_images):
+        fig.add_subplot(1, n_images, i+1)
+        plt.imshow(images[i])
 
-    #
-    # You code here
-    #
+    plt.show(block = True)
