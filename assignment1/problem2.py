@@ -10,11 +10,7 @@ def loaddata(path):
     Returns:
         Bayer data as numpy array (H,W)
     """
-
-    #
-    # You code here
-    #
-
+    return np.load(path)
 
 def separatechannels(bayerdata):
     """ Separate bayer data into RGB channels so that
@@ -27,10 +23,16 @@ def separatechannels(bayerdata):
     Returns:
         red, green, and blue channel as numpy array (H,W)
     """
+    H, W = bayerdata.shape
+    r_img = np.zeros((H, W))
+    g_img = np.zeros((H, W))
+    b_img = np.zeros((H, W))
 
-    #
-    # You code here
-    #
+    r_img[0:H:2, 1:W:2] = bayerdata[0:H:2, 1:W:2]
+    b_img[1:H:2, 0:W:2] = bayerdata[1:H:2, 0:W:2]
+    g_img[0:H:2, 0:W:2] = bayerdata[0:H:2, 0:W:2]
+
+    return r_img, g_img, b_img
 
 
 def assembleimage(r, g, b):
@@ -42,9 +44,7 @@ def assembleimage(r, g, b):
         Image as numpy array (H,W,3)
     """
 
-    #
-    # You code here
-    #
+    return np.dstack((r,g,b))
 
 
 def interpolate(r, g, b):
@@ -56,7 +56,15 @@ def interpolate(r, g, b):
     Returns:
         Interpolated image as numpy array (H,W,3)
     """
+    G = np.array([[1,2,1],[2,4,2],[1,2,1]])
+    Gauss_kernel = G/np.sum(G)
+    # feels better with nearest 
+    r = convolve(r, Gauss_kernel, mode='nearest')
+    g = convolve(g, Gauss_kernel, mode='nearest') 
+    b = convolve(b, Gauss_kernel, mode='nearest')
+    # r = convolve(r, Gauss_kernel, mode='constant')
+    # g = convolve(g, Gauss_kernel, mode='constant') 
+    # b = convolve(b, Gauss_kernel, mode='constant')
+    return np.dstack((r,g,b))
 
-    #
-    # You code here
-    #
+
