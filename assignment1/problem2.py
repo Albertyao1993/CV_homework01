@@ -27,10 +27,17 @@ def separatechannels(bayerdata):
     r_img = np.zeros((H, W))
     g_img = np.zeros((H, W))
     b_img = np.zeros((H, W))
-
+    #base on RGB forme from exercise sheet
     r_img[0:H:2, 1:W:2] = bayerdata[0:H:2, 1:W:2]
     b_img[1:H:2, 0:W:2] = bayerdata[1:H:2, 0:W:2]
     g_img[0:H:2, 0:W:2] = bayerdata[0:H:2, 0:W:2]
+    g_img[1:H:2, 1:W:2] = bayerdata[1:H:2, 1:W:2]
+
+    #base on RGB form from lecture02 page 37
+    # r_img[1:H:2, 1:W:2] = bayerdata[1:H:2, 1:W:2]
+    # b_img[0:H:2, 0:W:2] = bayerdata[0:H:2, 0:W:2]
+    # g_img[0:H:2, 1:W:2] = bayerdata[0:H:2, 1:W:2]
+    # g_img[1:H:2, 0:W:2] = bayerdata[1:H:2, 0:W:2]
 
     return r_img, g_img, b_img
 
@@ -56,12 +63,17 @@ def interpolate(r, g, b):
     Returns:
         Interpolated image as numpy array (H,W,3)
     """
-    G = np.array([[1,2,1],[2,4,2],[1,2,1]])
-    Gauss_kernel = G/np.sum(G)
+    # G = np.array([[1,2,1],[2,4,2],[1,2,1]])
+    # Gauss_kernel = G/np.sum(G)
+    kernel = 1/4*np.array([
+        [1,0,1],
+        [0,0,0],
+        [1,0,1]
+    ])
     # feels better with nearest 
-    r = convolve(r, Gauss_kernel, mode='nearest')
-    g = convolve(g, Gauss_kernel, mode='nearest') 
-    b = convolve(b, Gauss_kernel, mode='nearest')
+    r = convolve(r, kernel, mode='nearest')
+    g = convolve(g, kernel, mode='nearest') 
+    b = convolve(b, kernel, mode='nearest')
     # r = convolve(r, Gauss_kernel, mode='constant')
     # g = convolve(g, Gauss_kernel, mode='constant') 
     # b = convolve(b, Gauss_kernel, mode='constant')

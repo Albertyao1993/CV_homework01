@@ -29,10 +29,10 @@ def cart2hom(points):
   Returns:
     points_hom: a np array of points in homogeneous coordinates
   """
-
-  #
-  # You code here
-  #
+  m,n = points.shape
+  hom = np.ones((1,n))
+  points_hom = np.vstack((points, hom))
+  return points_hom
 
 
 def hom2cart(points):
@@ -45,9 +45,8 @@ def hom2cart(points):
     points_hom: a np array of points in cartesian coordinates
   """
 
-  #
-  # You code here
-  #
+  points = points / points[-1]
+  return points[:-1]
 
 
 def gettranslation(v):
@@ -59,10 +58,9 @@ def gettranslation(v):
   Returns:
     T: translation matrix in homogeneous coordinates
   """
-
-  #
-  # You code here
-  #
+  T = np.identity(4)
+  T[0,3], T[1,3], T[2,3] = v[0], v[1], v[2]
+  return T 
 
 
 def getxrotation(d):
@@ -74,11 +72,15 @@ def getxrotation(d):
   Returns:
     Rx: rotation matrix
   """
-
-  #
-  # You code here
-  #
-
+  
+  Rx = np.array([
+   [1, 0, 0, 0],
+   [0, np.cos(d*np.pi/180), -np.sin(d*np.pi/180), 0],
+   [0, np.sin(d*np.pi/180), np.cos(d*np.pi/180), 0],
+   [0, 0, 0, 1] 
+  ])
+  # print(Rx.shape)
+  return Rx
 
 def getyrotation(d):
   """ Returns rotation matrix Ry in homogeneous coordinates for a rotation of d degrees around the y axis.
@@ -89,10 +91,14 @@ def getyrotation(d):
   Returns:
     Ry: rotation matrix
   """
-
-  #
-  # You code here
-  #
+  Ry = np.array([
+    [np.cos(d*np.pi/180), 0, np.sin(d*np.pi/180), 0],
+    [0, 1, 0, 0],
+    [-np.sin(d*np.pi/180), 0, np.cos(d*np.pi/180), 0],
+    [0, 0, 0, 1]
+  ])
+  # print(Ry.shape)
+  return Ry
 
 
 def getzrotation(d):
@@ -104,11 +110,14 @@ def getzrotation(d):
   Returns:
     Rz: rotation matrix
   """
-
-  #
-  # You code here
-  #
-
+  Rz = np.array([
+    [np.cos(d*np.pi/180), -np.sin(d*np.pi/180), 0, 0],
+    [np.sin(d*np.pi/180), np.cos(d*np.pi/180), 0, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 1]
+  ])
+  # print(Rz.shape)
+  return Rz
 
 
 def getcentralprojection(principal, focal):
@@ -123,9 +132,12 @@ def getcentralprojection(principal, focal):
     L: central projection matrix
   """
 
-  #
-  # You code here
-  #
+  L = np.zeros((3,4))
+  L[0,0] = L[1,1] = focal
+  L[0,2], L[1,2], L[2,2] = principal[0], principal[1], 1
+  # print(L)
+
+  return L
 
 
 def getfullprojection(T, Rx, Ry, Rz, L):
@@ -142,10 +154,13 @@ def getfullprojection(T, Rx, Ry, Rz, L):
     P: projection matrix
     M: matrix that summarizes extrinsic transformations
   """
-
-  #
-  # You code here
-  #
+  Rot = np.dot((np.dot(Rz,Rx)), Ry)
+  M = np.dot(Rot,T)
+  # M = np.dot(T, Rot)
+  P = np.dot(L, M)
+  return P, M
+  assert (M.shape == (4,4))
+  assert (P.shape == (3,4))
 
 
 def projectpoints(P, X):
@@ -158,11 +173,10 @@ def projectpoints(P, X):
   Returns:
     x: 2d points in cartesian coordinates
   """
-
-  #
-  # You code here
-  #
-
+  X = cart2hom(X)
+  x = np.dot(P, X)
+  # print(x)
+  return x
 
 def loadpoints():
   """ Load 2D points from obj2d.npy.
@@ -170,10 +184,9 @@ def loadpoints():
   Returns:
     x: np array of points loaded from obj2d.npy
   """
-
-  #
-  # You code here
-  #
+  # print(np.load('data/obj2d.npy'))
+  # print(np.load('data/obj2d.npy').shape)
+  return np.load('data/obj2d.npy')
 
 
 def loadz():
@@ -182,10 +195,9 @@ def loadz():
   Returns:
     z: np array containing the z-coordinates
   """
-
-  #
-  # You code here
-  #
+  # print(np.load('data/zs.npy'))
+  # print(np.load('data/zs.npy').shape)
+  return np.load('data/zs.npy')
 
 
 def invertprojection(L, P2d, z):
@@ -200,10 +212,15 @@ def invertprojection(L, P2d, z):
   Returns:
     P3d: 3d cartesian camera coordinates of the points
   """
+  P2d_hom = cart2hom(P2d)
+  L = L[:,:-1]
+  L_inv = np.linalg.inv(L)
+  P3d = np.dot(L_inv,P2d_hom)
+  P3d = np.multiply(P3d,z)
+  # print(P3d)
+  # print(P3d.shape)
+  return P3d
 
-  #
-  # You code here
-  #
 
 
 def inverttransformation(M, P3d):
@@ -217,10 +234,11 @@ def inverttransformation(M, P3d):
   Returns:
     X: 3d points after the extrinsic transformations have been reverted
   """
-
-  #
-  # You code here
-  #
+  P3d = cart2hom(P3d)
+  M_inv = np.linalg.inv(M)
+  X = np.dot(M_inv, P3d)
+  # print(X.shape)
+  return X
 
 
 def p3multiplecoice():
@@ -233,4 +251,4 @@ def p3multiplecoice():
   2: All transformations commute.
   '''
 
-  return -1
+  return 0

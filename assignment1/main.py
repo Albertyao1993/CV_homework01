@@ -37,7 +37,11 @@ def problem2():
     Note: uses display_image() from Problem 1"""
 
     data = loaddata("data/bayerdata.npy")
+    display_image(data)
     r, g, b = separatechannels(data)
+    display_image(r)
+    display_image(g)
+    display_image(b)
 
     img = assembleimage(r, g, b)
     display_image(img)
@@ -125,7 +129,7 @@ def problem4():
     plt.title("Derivative magnitude")
 
     # threshold derivative
-    threshold = 1.0
+    threshold = 0.01
     edges = detectedges(imgx,imgy,threshold)
     plt.figure()
     plt.imshow(edges > 0, "gray", interpolation="none")
@@ -143,7 +147,7 @@ def problem4():
 
 
 if __name__ == "__main__":
-    problem1()
-    problem2()
-    problem3()
+    # problem1()
+    # problem2()
+    # problem3()
     problem4()
